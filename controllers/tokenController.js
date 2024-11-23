@@ -76,6 +76,28 @@ exports.getBalance = async (req, res, next) => {
   
 
 
+exports.sendTokens = async (req, res, next) => {
+  try {
+    const { sender, destination, amount } = req.body;
+
+    // Validate request body
+    if (!sender || !destination || !amount) {
+      return res.status(400).json({ message: 'Sender, destination, and amount are required.' });
+    }
+
+    // Call the service to create the payload
+    const transaction = await tokenService.sendTokens(sender, destination, amount);
+
+    res.status(200).json({
+      message: 'Transaction payload created. Await user signature.',
+      payload: transaction,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 exports.sendXRP = async (req, res, next) => {
   try {
     const { sender, destination, amount } = req.body;

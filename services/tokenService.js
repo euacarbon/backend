@@ -161,6 +161,62 @@ if (!COLD_ADDRESS || !CURRENCY_CODE) {
   throw new Error('Please set COLD_ADDRESS and CURRENCY_CODE in the .env file');
 }
 
+// send tokens 
+
+const sendTokens = async (sender, destination, amount) => {
+  try {
+    // Validate addresses
+    if (!xrpl.isValidClassicAddress(sender)) {
+      throw new Error("Invalid sender address.");
+    }
+    if (!xrpl.isValidClassicAddress(destination)) {
+      throw new Error("Invalid destination address.");
+    }
+
+    const calculateSendMax = (amount, feePercent) => {
+      const feeMultiplier = 1 + feePercent / 100; 
+      const sendMax = parseFloat(amount) * feeMultiplier;
+      return sendMax.toFixed(8); 
+    };
+    
+    const payload = {
+      TransactionType: 'Payment',
+      Account: sender, 
+      Destination: destination, 
+      Amount: {
+        currency: CURRENCY_CODE, 
+        issuer: COLD_ADDRESS, 
+        value: amount.toString(), 
+      },
+      SendMax: {
+        currency: CURRENCY_CODE,
+        issuer: COLD_ADDRESS,
+        value: calculateSendMax(amount, 0.1), // Add 0.1% fee
+      },
+    };
+    
+
+    // Submit the payload
+    const response = await xummSdk.payload.create(payload);
+
+    if (!response) {
+      throw new Error("Failed to create transaction payload.");
+    }
+
+    return {
+      uuid: response.uuid, // Payload UUID
+      nextUrl: response.next.always, // URL for signing the payload
+    };
+  } catch (error) {
+    console.error("Error in sendTokens:", error.message);
+    throw error;
+  }
+};
+
+
+
+
+
 /**
  * Get token balance for an account using WebSocket RPC
  * @param {string} account - The XRP Ledger account to check.
@@ -230,6 +286,7 @@ module.exports = {
     getXRPBalance,
     sendXRP,
     getTokenBalance,
-    createTrustLine
+    createTrustLine,
+    sendTokens
     
 };

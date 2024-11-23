@@ -9,7 +9,7 @@ router.post('/send', authMiddleware, tokenController.sendXRP);
 router.post('/issueToken', tokenController.issueToken);
 router.post('/createTrustLine', authMiddleware, tokenController.createTrustLine);
 router.get('/getTokenBalance', authMiddleware, tokenController.getTokenBalance);
-
+router.post('/sendToken', authMiddleware, tokenController.sendTokens);
 
 
 module.exports = router;

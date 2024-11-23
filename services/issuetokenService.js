@@ -2,14 +2,10 @@ require('dotenv').config();
 const xrpl = require('xrpl');
 const config = require('../config/config');
 
-
-// Load environment variables
 const ISSUER_ADDRESS = process.env.COLD_ADDRESS;
 const ISSUER_SECRET = process.env.COLD_SECRET;
 const HOT_ADDRESS = process.env.HOT_ADDRESS;
 const HOT_SECRET = process.env.HOT_SECRET;
-
-// Connect to XRPL Testnet
 
 if (!ISSUER_ADDRESS || !ISSUER_SECRET || !HOT_ADDRESS || !HOT_SECRET) {
   throw new Error('Please set COLD_ADDRESS, COLD_SECRET, HOT_ADDRESS, and HOT_SECRET in the .env file');
@@ -34,6 +30,7 @@ const issueToken = async (currencyCode, tokenSupply, domain) => {
       TransactionType: 'AccountSet',
       Account: ISSUER_ADDRESS,
       TransferRate: 1001000000, // 0.1% fee
+      SetFlag: xrpl.AccountSetAsfFlags.asfDefaultRipple,
       Domain: Buffer.from(domain).toString('hex'), // Convert domain to hex
     };
 
@@ -76,7 +73,7 @@ const issueToken = async (currencyCode, tokenSupply, domain) => {
       LimitAmount: {
         currency: currencyCode,
         issuer: ISSUER_ADDRESS,
-        value: '10000000000', // Arbitrary high limit
+        value: '10000000000', 
       },
     };
 
@@ -95,6 +92,7 @@ const issueToken = async (currencyCode, tokenSupply, domain) => {
     const issueTokenTx = {
       TransactionType: 'Payment',
       Account: ISSUER_ADDRESS,
+      
       DeliverMax: {
         currency: currencyCode,
         value: tokenSupply,
