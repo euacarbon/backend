@@ -229,7 +229,6 @@ const getTokenBalance = async (account) => {
 
   const ws = new WebSocket(config.xrpNodeUrl); // WebSocket URL from .env
 
-
   return new Promise((resolve, reject) => {
     ws.on('open', () => {
       const request = {
@@ -259,7 +258,14 @@ const getTokenBalance = async (account) => {
       ws.close();
 
       if (!token) {
-        reject(new Error(`No balance found for currency ${CURRENCY_CODE} issued by ${COLD_ADDRESS}.`));
+        console.warn(
+          `No balance found for currency ${CURRENCY_CODE} issued by ${COLD_ADDRESS}. Returning balance as 0.`
+        );
+        resolve({
+          balance: '0',
+          currency: CURRENCY_CODE,
+          issuer: COLD_ADDRESS,
+        });
         return;
       }
 
@@ -280,6 +286,7 @@ const getTokenBalance = async (account) => {
     });
   });
 };
+
 
 
 // TRADE TOKEN
