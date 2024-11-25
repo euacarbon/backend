@@ -282,11 +282,137 @@ const getTokenBalance = async (account) => {
 };
 
 
+// TRADE TOKEN
+
+const tradeToken = async (account, action, amount, price) => {
+  try {
+    if (!xrpl.isValidClassicAddress(account)) {
+      throw new Error("Invalid account address.");
+    }
+
+    let payload;
+
+    if (action === "buy") {
+      payload = {
+        TransactionType: "OfferCreate",
+        Account: account,
+        TakerPays: {
+          currency: CURRENCY_CODE,
+          issuer: COLD_ADDRESS,
+          value: amount.toString(), 
+        },
+        TakerGets: xrpl.xrpToDrops(price.toString()), // Convert XRP to drops
+      };
+    } else if (action === "sell") {
+      payload = {
+        TransactionType: "OfferCreate",
+        Account: account,
+        TakerPays: xrpl.xrpToDrops(price.toString()), // Convert XRP to drops
+        TakerGets: {
+          currency: CURRENCY_CODE,
+          issuer: COLD_ADDRESS,
+          value: amount.toString(), // Amount of your token
+        },
+      };
+    } else {
+      throw new Error("Invalid action. Use 'buy' or 'sell'.");
+    }
+
+    // Create the transaction payload in XUMM
+    const response = await xummSdk.payload.create({
+      txjson: payload,
+    });
+
+    if (!response || !response.next) {
+      throw new Error("Failed to create transaction payload.");
+    }
+
+    return {
+      uuid: response.uuid, // Unique identifier for the payload
+      nextUrl: response.next.always, // URL for signing the payload
+    };
+  } catch (error) {
+    console.error("Error in tradeToken:", error.message);
+    throw error;
+  }
+};
+
+
+// GET PATHS 
+
+const getAvailableSwapPath = async (data) => {
+  const {
+    source_account,
+    destination_account,
+    value,
+  } = data;
+
+  if (!source_account || !destination_account || !value ) {
+    throw new Error('All parameters (source_account, destination_account, value) are required.');
+  }
+
+  const ws = new WebSocket(config.xrpNodeUrl); // WebSocket URL from .env
+
+  return new Promise((resolve, reject) => {
+    ws.on('open', () => {
+      const request = {
+        id: 2,
+        command: 'path_find',
+        subcommand: 'create',
+        source_account,
+        destination_account,
+        destination_amount: {
+          value,
+          currency: CURRENCY_CODE,
+          issuer: COLD_ADDRESS,
+        },
+      };
+
+      ws.send(JSON.stringify(request));
+    });
+
+    ws.on('message', (message) => {
+      const response = JSON.parse(message);
+
+      if (response.status !== 'success') {
+        reject(new Error(response.error_message || 'Failed to find paths.'));
+        ws.close();
+        return;
+      }
+
+      const paths = response.result.paths_computed;
+
+      ws.close();
+
+      if (!paths || paths.length === 0) {
+        reject(new Error('No swap paths found.'));
+        return;
+      }
+
+      resolve(paths);
+    });
+
+    ws.on('error', (err) => {
+      ws.close();
+      reject(err);
+    });
+
+    ws.on('close', () => {
+      console.log('WebSocket connection closed.');
+    });
+  });
+};
+
+
+
+
 module.exports = {
     getXRPBalance,
     sendXRP,
     getTokenBalance,
     createTrustLine,
-    sendTokens
+    sendTokens,
+    tradeToken,
+    getAvailableSwapPath
     
 };

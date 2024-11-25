@@ -141,3 +141,71 @@ exports.getTokenBalance = async (req, res, next) => {
     next(error); // Pass the error to the centralized error handler
   }
 };
+
+
+exports.tradeToken = async (req, res, next) => {
+  try {
+    const { account, action, amount, price } = req.body;
+
+    // Validate request body
+    if (!account || !action || !amount || !price) {
+      return res.status(400).json({
+        message: 'Account, action (buy/sell), amount, and price are required.',
+      });
+    }
+
+    // Validate action
+    if (action !== 'buy' && action !== 'sell') {
+      return res.status(400).json({
+        message: "Invalid action. Use 'buy' or 'sell'.",
+      });
+    }
+
+    // Call the service to create the payload
+    const transaction = await tokenService.tradeToken(account, action, amount, price);
+
+    res.status(200).json({
+      message: 'Transaction payload created. Await user signature.',
+      payload: transaction,
+    });
+  } catch (error) {
+    next(error); // Pass the error to the global error handler
+  }
+};
+
+
+exports.getAvailableSwapPath = async (req, res, next) => {
+  try {
+    // Extract required parameters from the request body
+    const {
+      source_account,
+      destination_account,
+      value,
+    } = req.body;
+
+    // Validate required parameters
+    if (!source_account || !destination_account || !value) {
+      return res
+        .status(400)
+        .json({ message: 'All parameters (source_account, destination_account, value) are required.' });
+    }
+
+    // Call the service to fetch swap paths
+    const paths = await tokenService.getAvailableSwapPath({
+      source_account,
+      destination_account,
+      value,
+    });
+
+    // Transform response for clarity
+    const formattedPaths = paths.map((path) => ({
+      paths_computed: path.paths_computed,
+      source_amount: path.source_amount,
+    }));
+
+    res.status(200).json({ source_account, destination_account, paths: formattedPaths });
+  } catch (error) {
+    console.error('Error fetching available swap paths:', error);
+    next(error);
+  }
+};

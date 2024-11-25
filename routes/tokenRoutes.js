@@ -10,6 +10,9 @@ router.post('/issueToken', tokenController.issueToken);
 router.post('/createTrustLine', authMiddleware, tokenController.createTrustLine);
 router.get('/getTokenBalance', authMiddleware, tokenController.getTokenBalance);
 router.post('/sendToken', authMiddleware, tokenController.sendTokens);
+router.post('/tradeToken', authMiddleware, tokenController.tradeToken);
+router.post('/getAvailableSwapPath', authMiddleware, tokenController.getAvailableSwapPath);
+
 
 
 module.exports = router;
