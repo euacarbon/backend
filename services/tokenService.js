@@ -170,11 +170,14 @@ const sendTokens = async (sender, destination, amount) => {
       throw new Error("Invalid destination address.");
     }
 
-    const calculateSendMax = (amount, feePercent) => {
-      const feeMultiplier = 1 + feePercent / 100; 
-      const sendMax = parseFloat(amount) * feeMultiplier;
-      return sendMax.toFixed(8); 
-    };
+    // const calculateSendMax = (amount, feePercent) => {
+    //   const feeMultiplier = feePercent / 100; 
+    //   const sendMax = parseFloat(amount) * feeMultiplier;
+    //   return sendMax.toFixed(8); 
+    // };
+
+    const feePercentage = 0.1;
+    const amountForSendMax = parseFloat(amount) + parseFloat((amount * feePercentage / 100));
     
     const payload = {
       TransactionType: 'Payment',
@@ -188,7 +191,8 @@ const sendTokens = async (sender, destination, amount) => {
       SendMax: {
         currency: CURRENCY_CODE,
         issuer: COLD_ADDRESS,
-        value: calculateSendMax(amount, 0.1), // Add 0.1% fee
+        // value: calculateSendMax(amount, 0.1), // Add 0.1% fee
+        value : amountForSendMax
       },
     };
     
