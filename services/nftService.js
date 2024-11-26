@@ -1,6 +1,5 @@
 const xummSdk  = require('../services/xummService')
 const IMAGE_URL = process.env.IMAGE_URL;
-const {sendTokens} = require('../services/sendTokensService');
 // Mint an NFT
 const mintNFT = async (sender, amountBurned) => {
   try {
