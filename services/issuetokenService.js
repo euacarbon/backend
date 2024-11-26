@@ -13,12 +13,9 @@ if (!ISSUER_ADDRESS || !ISSUER_SECRET || !HOT_ADDRESS || !HOT_SECRET) {
 
 const issueToken = async (currencyCode, tokenSupply, domain) => {
   try {
-    // Validate inputs
     if (!currencyCode || !tokenSupply || !domain) {
       throw new Error('currencyCode, tokenSupply, and domain are required');
     }
-
-    // Connect to XRPL Testnet
     const client = new xrpl.Client(config.xrpNodeUrl);
 
     console.log('Connecting to XRPL Testnet...');
@@ -115,7 +112,6 @@ const issueToken = async (currencyCode, tokenSupply, domain) => {
     console.log('Tokens issued successfully.');
     await client.disconnect();
 
-    // Return transaction hash
     return {
       success: true,
       tx_hash: issueTokenSigned.hash,

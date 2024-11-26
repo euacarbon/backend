@@ -7,7 +7,6 @@ const WebSocket = require('ws');
 
 const createTrustLine = async (userAccount, issuerAddress, currencyCode, value = '10000000') => {
   try {
-    // Validate inputs
     if (!xrpl.isValidClassicAddress(userAccount)) {
       throw new Error('Invalid user account address.');
     }
@@ -35,7 +34,7 @@ const createTrustLine = async (userAccount, issuerAddress, currencyCode, value =
     };
     
      const trustLinePayload = {
-      txjson: trustLineTx, // Wrap transaction in txjson
+      txjson: trustLineTx, 
       custom_meta: {
         instruction: `Please sign to create a trust line for ${currencyCode} with issuer ${issuerAddress}`,
       },
@@ -84,7 +83,7 @@ const getXRPBalance = async (account) => {
         return;
       }
 
-      const balance = parseInt(response.result.account_data.Balance, 10) / 1000000; // Convert drops to XRP
+      const balance = parseInt(response.result.account_data.Balance, 10) / 1000000; 
 
       const result = {
         balance,
@@ -111,7 +110,6 @@ const getXRPBalance = async (account) => {
 
 const sendXRP = async (sender, destination, amount) => {
   try {
-    // Validate addresses
     if (!xrpl.isValidClassicAddress(sender)) {
       throw new Error("Invalid sender address.");
     }
@@ -143,8 +141,8 @@ const sendXRP = async (sender, destination, amount) => {
     }
 
     return {
-      uuid: response.uuid, // Payload UUID
-      nextUrl: response.next.always, // URL for signing the payload
+      uuid: response.uuid, 
+      nextUrl: response.next.always, 
     };
   } catch (error) {
     console.error("Error in sendXRP:", error.message);
@@ -165,7 +163,6 @@ if (!COLD_ADDRESS || !CURRENCY_CODE) {
 
 const sendTokens = async (sender, destination, amount) => {
   try {
-    // Validate addresses
     if (!xrpl.isValidClassicAddress(sender)) {
       throw new Error("Invalid sender address.");
     }
@@ -204,8 +201,8 @@ const sendTokens = async (sender, destination, amount) => {
     }
 
     return {
-      uuid: response.uuid, // Payload UUID
-      nextUrl: response.next.always, // URL for signing the payload
+      uuid: response.uuid, 
+      nextUrl: response.next.always,
     };
   } catch (error) {
     console.error("Error in sendTokens:", error.message);
@@ -308,7 +305,7 @@ const tradeToken = async (account, action, amount, price) => {
           issuer: COLD_ADDRESS,
           value: amount.toString(), 
         },
-        TakerGets: xrpl.xrpToDrops(price.toString()), // Convert XRP to drops
+        TakerGets: xrpl.xrpToDrops(price.toString()), 
       };
     } else if (action === "sell") {
       payload = {
@@ -318,7 +315,7 @@ const tradeToken = async (account, action, amount, price) => {
         TakerGets: {
           currency: CURRENCY_CODE,
           issuer: COLD_ADDRESS,
-          value: amount.toString(), // Amount of your token
+          value: amount.toString(), 
         },
       };
     } else {
@@ -335,8 +332,8 @@ const tradeToken = async (account, action, amount, price) => {
     }
 
     return {
-      uuid: response.uuid, // Unique identifier for the payload
-      nextUrl: response.next.always, // URL for signing the payload
+      uuid: response.uuid, 
+      nextUrl: response.next.always, 
     };
   } catch (error) {
     console.error("Error in tradeToken:", error.message);

@@ -1,6 +1,7 @@
 const tokenService = require('../services/tokenService');
 const issueTokenService = require('../services/issuetokenService');
 
+
 exports.issueToken = async (req, res, next) => {
   try {
     const { currency_code, token_supply, domain } = req.body;
@@ -13,7 +14,7 @@ exports.issueToken = async (req, res, next) => {
 
     res.status(200).json({ message: 'Token issuance successful', data: result });
   } catch (error) {
-    next(error); // Pass the error to the next middleware for centralized error handling
+    next(error); 
   }
 };
 
@@ -23,14 +24,12 @@ exports.createTrustLine = async (req, res, next) => {
   try {
     const { userAccount, issuerAddress, currencyCode, value } = req.body;
 
-    // Validate request body
     if (!userAccount || !issuerAddress || !currencyCode) {
       return res.status(400).json({
         message: 'userAccount, issuerAddress, and currencyCode are required.',
       });
     }
 
-    // Call the service to create the trust line payload
     const trustLinePayload = await tokenService.createTrustLine(userAccount, issuerAddress, currencyCode, value);
 
     res.status(200).json({
@@ -80,12 +79,10 @@ exports.sendTokens = async (req, res, next) => {
   try {
     const { sender, destination, amount } = req.body;
 
-    // Validate request body
     if (!sender || !destination || !amount) {
       return res.status(400).json({ message: 'Sender, destination, and amount are required.' });
     }
 
-    // Call the service to create the payload
     const transaction = await tokenService.sendTokens(sender, destination, amount);
 
     res.status(200).json({
@@ -102,12 +99,10 @@ exports.sendXRP = async (req, res, next) => {
   try {
     const { sender, destination, amount } = req.body;
 
-    // Validate request body
     if (!sender || !destination || !amount) {
       return res.status(400).json({ message: 'Sender, destination, and amount are required.' });
     }
 
-    // Call the service to create the payload
     const transaction = await tokenService.sendXRP(sender, destination, amount);
 
     res.status(200).json({
@@ -129,7 +124,6 @@ exports.getTokenBalance = async (req, res, next) => {
       return res.status(400).json({ message: 'Account is required in the query parameters.' });
     }
 
-    // Call the service to fetch the token balance
     const result = await tokenService.getTokenBalance(account);
 
     res.status(200).json({
@@ -138,7 +132,7 @@ exports.getTokenBalance = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Error in getTokenBalance controller:', error.message);
-    next(error); // Pass the error to the centralized error handler
+    next(error); 
   }
 };
 
@@ -147,21 +141,18 @@ exports.tradeToken = async (req, res, next) => {
   try {
     const { account, action, amount, price } = req.body;
 
-    // Validate request body
     if (!account || !action || !amount || !price) {
       return res.status(400).json({
         message: 'Account, action (buy/sell), amount, and price are required.',
       });
     }
 
-    // Validate action
     if (action !== 'buy' && action !== 'sell') {
       return res.status(400).json({
         message: "Invalid action. Use 'buy' or 'sell'.",
       });
     }
 
-    // Call the service to create the payload
     const transaction = await tokenService.tradeToken(account, action, amount, price);
 
     res.status(200).json({
@@ -169,7 +160,7 @@ exports.tradeToken = async (req, res, next) => {
       payload: transaction,
     });
   } catch (error) {
-    next(error); // Pass the error to the global error handler
+    next(error); 
   }
 };
 
@@ -190,7 +181,6 @@ exports.getAvailableSwapPath = async (req, res, next) => {
         .json({ message: 'All parameters (source_account, destination_account, value) are required.' });
     }
 
-    // Call the service to fetch swap paths
     const paths = await tokenService.getAvailableSwapPath({
       source_account,
       destination_account,
@@ -209,3 +199,7 @@ exports.getAvailableSwapPath = async (req, res, next) => {
     next(error);
   }
 };
+
+
+
+
