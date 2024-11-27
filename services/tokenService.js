@@ -170,32 +170,33 @@ const sendTokens = async (sender, destination, amount) => {
       throw new Error("Invalid destination address.");
     }
 
-    // const calculateSendMax = (amount, feePercent) => {
-    //   const feeMultiplier = feePercent / 100; 
-    //   const sendMax = parseFloat(amount) * feeMultiplier;
-    //   return sendMax.toFixed(8); 
-    // };
+    // Ensure amount is a valid number and format it to 5 decimal places
+    const formatValue = (value) => {
+      if (isNaN(value)) {
+        throw new Error("Invalid amount value.");
+      }
+      return parseFloat(value).toFixed(5); // Limit to 5 decimals and convert to string
+    };
 
+    // Calculate SendMax with fee (0.1%)
     const feePercentage = 0.1;
-    const amountForSendMax = parseFloat(amount) + parseFloat((amount * feePercentage / 100));
-    
+    const sendMaxValue = formatValue(parseFloat(amount) + (parseFloat(amount) * feePercentage / 100));
+
     const payload = {
       TransactionType: 'Payment',
-      Account: sender, 
-      Destination: destination, 
+      Account: sender,
+      Destination: destination,
       Amount: {
-        currency: CURRENCY_CODE, 
-        issuer: COLD_ADDRESS, 
-        value: amount.toString(), 
+        currency: CURRENCY_CODE,
+        issuer: COLD_ADDRESS,
+        value: formatValue(amount), // Format amount to string with max 5 decimals
       },
       SendMax: {
         currency: CURRENCY_CODE,
         issuer: COLD_ADDRESS,
-        // value: calculateSendMax(amount, 0.1), // Add 0.1% fee
-        value : amountForSendMax
+        value: sendMaxValue, // Format SendMax to string with max 5 decimals
       },
     };
-    
 
     // Submit the payload
     const response = await xummSdk.payload.create(payload);
@@ -205,7 +206,7 @@ const sendTokens = async (sender, destination, amount) => {
     }
 
     return {
-      uuid: response.uuid, 
+      uuid: response.uuid,
       nextUrl: response.next.always,
     };
   } catch (error) {
@@ -213,6 +214,7 @@ const sendTokens = async (sender, destination, amount) => {
     throw error;
   }
 };
+
 
 
 
