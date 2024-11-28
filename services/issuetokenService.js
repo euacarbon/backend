@@ -48,7 +48,7 @@ const issueToken = async (currencyCode, tokenSupply, domain) => {
     //   TransactionType: 'AccountSet',
     //   Account: HOT_ADDRESS,
     //   SetFlag: xrpl.AccountSetAsfFlags.asfRequireAuth,
-    //   Flags: xrpl.AccountSetTfFlags.tfDisallowXRP | xrpl.AccountSetTfFlags.tfRequireDestTag,
+    //   Flags: xrpl.AccountSetTfFlags.tfDisallowXRP ,
     // };
 
     // const hotWalletSettingsPrepared = await client.autofill(hotWalletSettingsTx);
